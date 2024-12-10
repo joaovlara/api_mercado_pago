@@ -1,23 +1,20 @@
 import mercadopago
 
-sdk = mercadopago.SDK("YOUR_ACCESS_TOKEN")
+def gerar_link_pagamento():
+    sdk = mercadopago.SDK("TEST")
 
-request_options = mercadopago.config.RequestOptions()
-request_options.custom_headers = {
-    'x-idempotency-key': '<SOME_UNIQUE_VALUE>'
-}
-
-payment_data = {
-    "transaction_amount": 100,
-    "token": "CARD_TOKEN",
-    "description": "Payment description",
-    "payment_method_id": 'visa',
-    "installments": 1,
-    "payer": {
-        "email": 'test_user_123456@testuser.com'
+    payment_data = {
+        "items": [
+            {"id": "1", "title": "Camisa", "quantity": 1, "currency_id": "BRL", "unit_price": 259.99}
+        ],
+        "back_urls": {
+            "success": "http://127.0.0.1:5000/compracerta",
+            "failure": "http://127.0.0.1:5000/compraerrada",
+            "pending": "http://127.0.0.1:5000/compraerrada",
+        },
+        "auto_return": "all"
     }
-}
-result = sdk.payment().create(payment_data, request_options)
-payment = result["response"]
-
-print(payment)
+    result = sdk.preference().create(payment_data)
+    payment = result["response"]
+    link_iniciar_pagamento = payment["init_point"]
+    return link_iniciar_pagamento
